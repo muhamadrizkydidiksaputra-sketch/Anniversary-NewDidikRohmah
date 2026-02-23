@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Anniversary</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    font-family:Georgia, serif;
+    position:relative;
+    background:black;
+    color:white;
+}
+
+/* background image fit tanpa kepotong */
+.bg{
+    position:absolute;
+    width:100%;
+    height:100%;
+    object-fit:contain;  /* biar gak kepotong */
+    object-position:center;
+    z-index:0;
+}
+
+/* overlay cinematic */
+.overlay{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index:1;
+    animation:overlayFade 6s ease forwards;
+    pointer-events:none; /* INI PENTING */
+}
+
+/* content */
+.content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    animation:fadeIn 2s ease forwards;
+}
+
+h1{
+    font-size:clamp(24px, 5vw, 50px);
+    letter-spacing:3px;
+    animation:fadeText 6s ease forwards;
+}
+    @keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes fadeText{
+    0%{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    20%{
+        opacity:1;
+        transform:translateY(0);
+    }
+    70%{
+        opacity:1;
+    }
+    100%{
+        opacity:0;
+    }
+}
+
+/* bunga jatuh */
+.flower{
+    position:absolute;
+    top:-50px;
+    font-size:20px;
+    animation:fall linear infinite;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(110vh) rotate(360deg);
+    }
+}
+
+@keyframes overlayFade{
+    0%{
+        background:rgba(0,0,0,0.6);
+    }
+    70%{
+        background:rgba(0,0,0,0.6);
+    }
+    100%{
+        background:rgba(0,0,0,0);
+    }
+}
+
+.img-wrapper{
+    position:absolute;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:0;
+    touch-action:none;
+}
+
+#photo{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    transition: transform 0.05s ease;
+}
+
+.next-btn{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    padding:8px 16px;
+    font-size:14px;
+    border:none;
+    border-radius:20px;
+    background:rgba(255,255,255,0.2);
+    color:white;
+    backdrop-filter:blur(5px);
+    cursor:pointer;
+    transition:all 0.3s ease;
+    z-index:3;
+}
+
+.next-btn:hover{
+    background:rgba(255,255,255,0.4);
+    transform:scale(1.05);
+}
+
+</style>
+</head>
+
+<button class="next-btn" onclick="goNext()">Next ➜</button>
+
+<body>
+
+<div class="img-wrapper">
+    <img src="foto3.jpg" id="photo">
+</div>
+
+<div class="overlay"></div>
+
+<div class="content">
+    <h1>Happy Anniversary My Future Wife ❤️</h1>
+</div>
+<audio id="music" loop>
+        <source src="lagu.mp3" type="audio/mpeg">
+    </audio>
+
+<script>
+
+// Play music
+let music = document.getElementById("music");
+music.volume = 0.2;
+
+// lagu baru jalan setelah user klik
+document.body.addEventListener("click", function startMusic(){
+    music.play().catch(()=>{});
+    document.body.removeEventListener("click", startMusic);
+});
+
+
+/* generate bunga jatuh */
+for(let i=0; i<30; i++){
+    let flower = document.createElement("div");
+    flower.classList.add("flower");
+    flower.innerHTML = "🌸";
+    flower.style.left = Math.random()*100 + "vw";
+    flower.style.animationDuration = (5 + Math.random()*5) + "s";
+    flower.style.fontSize = (15 + Math.random()*20) + "px";
+    document.body.appendChild(flower);
+}
+
+let img = document.getElementById("photo");
+
+let scale = 1;
+let posX = 0;
+let posY = 0;
+
+let startX = 0;
+let startY = 0;
+
+let isDragging = false;
+let initialDistance = null;
+
+/* ==== UPDATE TRANSFORM ==== */
+function update(){
+    img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
+
+/* ==== SCROLL ZOOM (Laptop) ==== */
+img.addEventListener("wheel", function(e){
+    e.preventDefault();
+    scale += e.deltaY * -0.001;
+    scale = Math.min(Math.max(1, scale), 4);
+    update();
+});
+
+/* ==== TOUCH START ==== */
+img.addEventListener("touchstart", function(e){
+
+    if(e.touches.length === 1){
+        isDragging = true;
+        startX = e.touches[0].clientX - posX;
+        startY = e.touches[0].clientY - posY;
+    }
+
+    if(e.touches.length === 2){
+        initialDistance = getDistance(e.touches);
+    }
+});
+
+/* ==== TOUCH MOVE ==== */
+img.addEventListener("touchmove", function(e){
+    e.preventDefault();
+
+    // Drag 1 jari
+    if(e.touches.length === 1 && isDragging && scale > 1){
+        posX = e.touches[0].clientX - startX;
+        posY = e.touches[0].clientY - startY;
+        update();
+    }
+
+    // Pinch zoom
+    if(e.touches.length === 2){
+        let newDistance = getDistance(e.touches);
+        let diff = newDistance - initialDistance;
+        scale += diff * 0.005;
+        scale = Math.min(Math.max(1, scale), 4);
+        initialDistance = newDistance;
+        update();
+    }
+});
+
+img.addEventListener("touchend", function(){
+    isDragging = false;
+});
+
+/* ==== MOUSE DRAG ==== */
+img.addEventListener("mousedown", function(e){
+    if(scale <= 1) return; // cuma bisa drag kalau zoom
+    isDragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+});
+
+window.addEventListener("mousemove", function(e){
+    if(!isDragging) return;
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
+    update();
+});
+
+window.addEventListener("mouseup", function(){
+    isDragging = false;
+});
+
+/* ==== HITUNG JARAK PINCH ==== */
+function getDistance(touches){
+    let dx = touches[0].clientX - touches[1].clientX;
+    let dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
+function goNext(){
+    window.location.href = "fireworks.html";
+}
+
+</script>
+
+
+</body>
+</html>

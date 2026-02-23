@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You ❤️</title>
+
+<style>
+body{
+  margin:0;
+  background:black;
+  overflow:hidden;
+  font-family: 'Georgia', serif;
+}
+
+canvas{
+  display:block;
+}
+
+#textOverlay{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:80%;
+  max-width:900px;
+  color:white;
+  text-align:center;
+  font-size:20px;
+  line-height:1.8;
+  white-space:pre-line;
+  z-index:10;
+  pointer-events:none;
+  text-shadow:0 0 20px rgba(255,255,255,1);
+}
+</style>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+<div id="textOverlay"></div>
+<audio id="music" loop>
+        <source src="lagu2.mp3" type="audio/mpeg">
+    </audio>
+
+
+<script>
+
+// Play music
+      let music = document.getElementById("music");
+music.volume = 0.2;
+
+// lagu baru jalan setelah user klik
+document.body.addEventListener("click", function startMusic(){
+    music.play().catch(()=>{});
+    document.body.removeEventListener("click", startMusic);
+});
+
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const textOverlay = document.getElementById("textOverlay");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+let heartMode = false;
+let imageOpacity = 0;
+let textStarted = false;
+
+let sceneDarkness = 0; 
+let startFadeOut = false;
+
+// ===== FOTO =====
+const rightImage = new Image();
+rightImage.src = "foto4.jpg";
+
+const leftImage = new Image();
+leftImage.src = "foto5.jpeg";
+
+// ===== PARTICLE =====
+class Particle{
+  constructor(x,y,color){
+    this.x = x;
+    this.y = y;
+    this.targetX = x;
+    this.targetY = y;
+    this.color = color;
+    this.size = 2;
+    this.speedX = (Math.random()-0.5)*6;
+    this.speedY = (Math.random()-0.5)*6;
+  }
+
+  update(){
+    if(heartMode){
+      this.x += (this.targetX - this.x) * 0.05;
+      this.y += (this.targetY - this.y) * 0.05;
+    } else {
+      this.x += this.speedX;
+      this.y += this.speedY;
+    }
+  }
+
+  draw(){
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+// ===== FIREWORK =====
+function createFirework(){
+  let x = Math.random()*canvas.width;
+  let y = Math.random()*canvas.height/2;
+
+  for(let i=0;i<120;i++){
+    particles.push(new Particle(
+      x,
+      y,
+      `hsl(${Math.random()*360},100%,60%)`
+    ));
+  }
+}
+
+// ===== HEART =====
+function formHeart(){
+  heartMode = true;
+  particles = [];
+
+  let t = 0;
+
+  const interval = setInterval(() => {
+
+    let x = 16*Math.pow(Math.sin(t),3);
+    let y = 13*Math.cos(t) - 5*Math.cos(2*t)
+            -2*Math.cos(3*t) - Math.cos(4*t);
+
+    let p = new Particle(
+      canvas.width/2,
+      canvas.height/2,
+      "rgba(255,0,0,0.7)"
+    );
+
+    p.targetX = canvas.width/2 + x*18;
+    p.targetY = canvas.height/2 - y*18;
+
+    particles.push(p);
+
+    t += 0.05;
+
+    if(t >= Math.PI*2){
+      clearInterval(interval);
+
+      setTimeout(()=>{
+        startFadeOut = true; // mulai redup
+      },2000);
+    }
+
+  }, 50);
+}
+
+// ===== TYPEWRITER =====
+const message = `“Aku ingin mencintaimu dengan sederhana;
+dengan kata yang tak sempat diucapkan kayu kepada api yang menjadikannya abu.
+Aku ingin mencintaimu dengan sederhana;
+dengan isyarat yang tak sempat disampaikan awan kepada hujan yang menjadikannya tiada.”
+
+— Sapardi Djoko Damono
+
+Dan bila kelak waktu berjalan sejauh apa pun,
+izinkan aku tetap tinggal—
+bukan sebagai yang paling sempurna,
+tapi sebagai yang tak pernah berhenti memilihmu.`;
+
+function startTyping(){
+  if(textStarted) return;
+  textStarted = true;
+
+  let i = 0;
+  function type(){
+    if(i < message.length){
+      textOverlay.innerHTML += message.charAt(i);
+      i++;
+      setTimeout(type, 40);
+    }
+  }
+  type();
+}
+
+// ===== DRAW FOTO =====
+function drawImageFit(img, centerX){
+  let maxSize = 170;
+  let ratio = img.width / img.height;
+  let w, h;
+
+  if(ratio > 1){
+    w = maxSize;
+    h = maxSize / ratio;
+  } else {
+    h = maxSize;
+    w = maxSize * ratio;
+  }
+
+  ctx.drawImage(
+    img,
+    centerX - w/2,
+    canvas.height/2 - h/2,
+    w,
+    h
+  );
+}
+
+// ===== ANIMATE =====
+function animate(){
+
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  particles.forEach(p=>{
+    p.update();
+    p.draw();
+  });
+
+  if(heartMode){
+
+    if(imageOpacity < 0.6){
+      imageOpacity += 0.01;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = imageOpacity;
+
+    if(leftImage.complete){
+      drawImageFit(leftImage, canvas.width/2 - 130);
+    }
+
+    if(rightImage.complete){
+      drawImageFit(rightImage, canvas.width/2 + 130);
+    }
+
+    ctx.restore();
+  }
+
+  // ===== FADE OUT SEMUA =====
+  if(startFadeOut){
+    if(sceneDarkness < 0.9){
+      sceneDarkness += 0.01;
+    } else {
+      startFadeOut = false;
+      startTyping();
+    }
+  }
+
+  if(sceneDarkness > 0){
+    ctx.fillStyle = `rgba(0,0,0,${sceneDarkness})`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ===== START =====
+setInterval(()=>{
+  if(!heartMode){
+    createFirework();
+  }
+},800);
+
+setTimeout(()=>{
+  formHeart();
+},7000);
+
+animate();
+
+</script>
+</body>
+</html>

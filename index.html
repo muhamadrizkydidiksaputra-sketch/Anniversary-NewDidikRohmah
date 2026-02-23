@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    height:100vh;
+    background:url("foto1.jpg") center/cover no-repeat;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family: 'Georgia', serif;
+    position:relative;
+}
+
+/* Dark overlay biar cinematic */
+body::before{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.55);
+    top:0;
+    left:0;
+}
+
+/* Container */
+#countdownBox{
+    position:relative;
+    color:white;
+    text-align:center;
+}
+
+/* Judul */
+#title{
+    font-size:clamp(24px, 4vw, 40px);
+    letter-spacing:3px;
+    margin-bottom:30px;
+}
+
+/* Timer besar */
+#timer{
+    display:flex;
+    gap:25px;
+    justify-content:center;
+    align-items:center;
+}
+
+.time-box{
+    text-align:center;
+    color:white;
+}
+
+.time-box span{
+    display:block;
+    font-size:clamp(40px, 8vw, 90px);
+    font-weight:bold;
+    letter-spacing:3px;
+}
+
+.time-box p{
+    margin-top:10px;
+    font-size:clamp(12px, 2vw, 18px);
+    opacity:0.8;
+    letter-spacing:2px;
+}
+
+/* Subtext */
+#sub{
+    margin-top:20px;
+    font-size:clamp(14px, 2vw, 18px);
+    opacity:0.8;
+}
+</style>
+</head>
+
+<body>
+
+<div id="countdownBox">
+    <div id="title">OUR SPECIAL DAY</div>
+
+<div id="timer">
+
+    <div class="time-box">
+        <span id="days">00</span>
+        <p>Days</p>
+    </div>
+
+    <div class="separator">:</div>
+
+    <div class="time-box">
+        <span id="hours">00</span>
+        <p>Hours</p>
+    </div>
+
+    <div class="separator">:</div>
+
+    <div class="time-box">
+        <span id="minutes">00</span>
+        <p>Minutes</p>
+    </div>
+
+    <div class="separator">:</div>
+
+    <div class="time-box">
+        <span id="seconds">00</span>
+        <p>Seconds</p>
+    </div>
+
+</div>
+
+<script>
+let target = new Date("Feb 24, 2026 01:40:00").getTime();
+
+function pad(n){
+    return n < 10 ? "0"+n : n;
+}
+
+function updateCountdown(){
+    let now = new Date().getTime();
+    let diff = target - now;
+
+    if(diff <= 0){
+        window.location.href = "enter.html";
+    }
+
+    let days = Math.floor(diff / (1000*60*60*24));
+    let hours = Math.floor((diff/(1000*60*60))%24);
+    let minutes = Math.floor((diff/(1000*60))%60);
+    let seconds = Math.floor((diff/1000)%60);
+
+    document.getElementById("days").innerHTML = pad(days);
+    document.getElementById("hours").innerHTML = pad(hours);
+    document.getElementById("minutes").innerHTML = pad(minutes);
+    document.getElementById("seconds").innerHTML = pad(seconds);
+}
+
+updateCountdown();
+setInterval(updateCountdown,1000);
+</script>
+
+</body>
+</html>

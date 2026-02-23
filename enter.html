@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enter My Heart</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    font-family:Arial, Helvetica, sans-serif;
+    background:url("foto2.jpg") center/cover no-repeat;
+    position:relative;
+    overflow:hidden;
+    color:white;
+}
+
+/* overlay cinematic */
+body::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.55);
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+/* content wrapper */
+.content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    animation:fadeIn 2s ease forwards;
+}
+
+h1{
+    font-size:clamp(28px, 6vw, 60px);
+    letter-spacing:4px;
+    margin-bottom:10px;
+}
+
+/* panah */
+.arrow{
+    font-size:clamp(50px, 5vw, 50px);
+    margin:10px 0 30px;
+    animation:bounce 1.5s infinite;
+}
+
+/* pink heart */
+#heart{
+    font-size:clamp(60px, 15vw, 120px);
+    color:#ff4d8d;
+    cursor:pointer;
+    transition:0.3s;
+    margin-top:-40px;
+}
+
+#heart:hover{
+    transform:scale(1.15);
+    filter:drop-shadow(0 0 15px #ff4d8d);
+
+/* animasi */
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes bounce{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(8px);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="content">
+    <h1>ENTER MY HEART</h1>
+    <div class="arrow">↓</div>
+    <div id="heart" onclick="goLove()">❤️</div>
+</div>
+
+<script>
+function goLove(){
+    window.location.href="love.html";
+}
+</script>
+
+</body>
+</html>
