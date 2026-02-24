@@ -21,17 +21,18 @@ canvas{
   top:50%;
   left:50%;
   transform:translate(-50%,-50%);
-  width:80%;
-  max-width:900px;
+  width:90%;
+  max-width:700px;
   color:white;
   text-align:center;
-  font-size:20px;
+  font-size:clamp(14px, 4vw, 20px);
   line-height:1.8;
   white-space:pre-line;
   z-index:10;
   pointer-events:none;
   text-shadow:0 0 20px rgba(255,255,255,1);
 }
+
 </style>
 </head>
 
@@ -60,8 +61,13 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const textOverlay = document.getElementById("textOverlay");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 let particles = [];
 let heartMode = false;
@@ -142,9 +148,12 @@ function formHeart(){
       "rgba(255,0,0,0.7)"
     );
 
-    p.targetX = canvas.width/2 + x*18;
-    p.targetY = canvas.height/2 - y*18;
+    let scale = Math.min(canvas.width,       
+    canvas.height) / 40;
 
+    p.targetX = canvas.width/2 + x * scale;
+    p.targetY = canvas.height/2 - y * scale;
+
     particles.push(p);
 
     t += 0.05;
@@ -189,8 +198,9 @@ function startTyping(){
 }
 
 // ===== DRAW FOTO =====
+
 function drawImageFit(img, centerX){
-  let maxSize = 170;
+  let maxSize = canvas.width < 600 ? 110 : 170; // lebih kecil kalau HP
   let ratio = img.width / img.height;
   let w, h;
 
@@ -210,7 +220,7 @@ function drawImageFit(img, centerX){
     h
   );
 }
-
+
 // ===== ANIMATE =====
 function animate(){
 
@@ -222,26 +232,28 @@ function animate(){
     p.draw();
   });
 
-  if(heartMode){
+if(heartMode){
 
-    if(imageOpacity < 0.6){
-      imageOpacity += 0.01;
-    }
-
-    ctx.save();
-    ctx.globalAlpha = imageOpacity;
-
-    if(leftImage.complete){
-      drawImageFit(leftImage, canvas.width/2 - 130);
-    }
-
-    if(rightImage.complete){
-      drawImageFit(rightImage, canvas.width/2 + 130);
-    }
-
-    ctx.restore();
+  if(imageOpacity < 0.6){
+    imageOpacity += 0.01;
   }
 
+  ctx.save();
+  ctx.globalAlpha = imageOpacity;
+
+  let offset = canvas.width < 600 ? 90 : 130;
+
+  if(leftImage.complete){
+    drawImageFit(leftImage, canvas.width/2 - offset);
+  }
+
+  if(rightImage.complete){
+    drawImageFit(rightImage, canvas.width/2 + offset);
+  }
+
+  ctx.restore();
+}
+  
   // ===== FADE OUT SEMUA =====
   if(startFadeOut){
     if(sceneDarkness < 0.9){
