@@ -32,6 +32,27 @@ canvas{
   pointer-events:none;
   text-shadow:0 0 20px rgba(255,255,255,1);
 }
+
+#homeBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:8px 14px;
+  font-size:12px;
+  background:rgba(255,255,255,0.15);
+  color:white;
+  border:1px solid rgba(255,255,255,0.5);
+  border-radius:20px;
+  cursor:pointer;
+  backdrop-filter:blur(5px);
+  display:none; /* awalnya disembunyiin */
+  z-index:20;
+  transition:0.3s;
+}
+
+#homeBtn:hover{
+  background:rgba(255,255,255,0.3);
+}
 
 </style>
 </head>
@@ -39,6 +60,7 @@ canvas{
 <body>
 <canvas id="canvas"></canvas>
 <div id="textOverlay"></div>
+<button id="homeBtn">Home</button>
 <audio id="music" loop>
         <source src="lagu2.mp3" type="audio/mpeg">
     </audio>
@@ -60,6 +82,7 @@ document.body.addEventListener("click", function startMusic(){
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const textOverlay = document.getElementById("textOverlay");
+const homeBtn = document.getElementById("homeBtn");
 
 function resizeCanvas(){
   canvas.width = window.innerWidth;
@@ -186,6 +209,8 @@ function startTyping(){
   if(textStarted) return;
   textStarted = true;
 
+homeBtn.style.display = "block";
+
   let i = 0;
   function type(){
     if(i < message.length){
@@ -223,6 +248,10 @@ function drawImageFit(img, centerX){
 
 // ===== ANIMATE =====
 function animate(){
+
+homeBtn.addEventListener("click", ()=>{
+  window.location.href = "index.html";
+});
 
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
